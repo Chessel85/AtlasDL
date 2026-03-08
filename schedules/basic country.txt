@@ -1,0 +1,20 @@
+//Defines the steps for creating an accessible atlas database 
+database=land.db
+step=CreateSpatialDatabase
+//step=OpenSpatialDatabase
+
+//Setup a download of countries 
+layer=countries
+saveDownload=yes
+boundingBox=Bhutan
+xDivisions=1
+yDivisions=1
+requiredTag=[type=boundary]
+requiredTag=[boundary=administrative]
+requiredTag=["admin_level"="2"]
+requiredTag=["name:en"="Bhutan"]
+step=DownloadRelations
+
+//Have a bunch of relations so work out which border each other 
+identifyBorders=maritime
+setColours=yes

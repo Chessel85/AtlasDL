@@ -1,0 +1,1 @@
+SELECT minlat, minlon, maxlat, maxlon FROM tbl_AdminRelations WHERE relationName =?;

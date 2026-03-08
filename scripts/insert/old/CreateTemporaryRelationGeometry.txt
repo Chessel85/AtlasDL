@@ -1,0 +1,18 @@
+--Drop table first in case already exists 
+-- DROP TABLE IF EXISTS tmp_relationPerimeter;
+
+SELECT
+    relationId,
+    polygonId,
+    ST_NPoints( ST_Polygonize( (CASE
+        WHEN rwl.direction = -1 THEN ST_Reverse( w.way )
+        ELSE w.way 
+    END ) ) ) AS polygon_geometry
+  FROM
+    tbl_relationWayLists AS rwl
+  JOIN
+    spt_ways AS w ON rwl.wayId = w.wayId
+WHERE
+    rwl.relationId = 87565 AND rwl.polygonId = 1
+  GROUP BY
+    rwl.relationId, rwl.polygonId;

@@ -1,0 +1,32 @@
+//Defines the steps for creating an accessible atlas database 
+database=land.db
+step=CreateSpatialDatabase
+//step=OpenSpatialDatabase
+
+//Setup a download of countries 
+layer=countries
+saveDownload=no
+boundingBox=Mozambique
+xDivisions=1
+yDivisions=1
+requiredTag=[type=boundary]
+requiredTag=[boundary=administrative]
+requiredTag=["admin_level"="2"]
+requiredTag=["name:en"="Mozambique"]
+step=DownloadRelations
+
+//Have a bunch of relations so work out which border each other 
+identifyBorders=maritime
+setColours=yes
+
+//Setup a download of coastlines 
+layer=coastline
+boundingBox=Mozambique
+xDivisions=1
+yDivisions=1
+requiredTag=[natural=coastline]
+step=DownloadWays
+
+//Remove territorial waters
+layer=territorialWaters
+step=removeTerritorialWaters

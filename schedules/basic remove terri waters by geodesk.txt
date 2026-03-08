@@ -1,0 +1,7 @@
+//Defines the steps for creating an accessible atlas database 
+database=land.db
+//step=CreateSpatialDatabase
+step=OpenSpatialDatabase
+//Remove territorial waters
+layer=territorialWaters
+step=removeTerritorialWaters

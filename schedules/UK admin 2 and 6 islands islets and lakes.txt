@@ -1,0 +1,33 @@
+//Do not leave leading or trailing spaces
+BoundingBox=(50,-8,59,2)
+LatDivisions=1
+LonDivisions=1
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="2"]
+ClearData=yes
+Go=relations
+ClearFilters=yes
+
+
+//Admin 6
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="6"]
+ClearData=no
+Go=relations
+ClearFilters=yes
+
+
+//Lakes
+//RequiredTag=[natural=water]
+//RequiredTag=[water=lake]
+//RequiredTag=[wikidata]
+//ClearData=no
+//Go=relations
+//ClearFilters=yes
+
+//Islands and islets 
+RequiredTag=["place"~"^(island|islet)"]
+ClearData=no
+Go=relations

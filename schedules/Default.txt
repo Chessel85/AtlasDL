@@ -1,0 +1,8 @@
+//Do not leave leading or trailing spaces
+BOUNDINGBOX=(-90,-180,90,180)
+LATITUDEDIVISIONS=1
+LONGITUDEDIVISIONS=1
+REJECTKEY=name*
+name=*
+name:en=*
+AdminLeve

@@ -1,0 +1,29 @@
+
+I have these two queries which I can run against my spatialite database to get the distance from a point to a polygon, and the bearing of this nearest distance.  Is there a way to combine the two queries into one query?
+SELECT ST_Distance
+ ( 
+ ST_Transform( polygon, 32631 ) , 
+ St_Transform( MakePoint( -4.357,57.338 , 4326  ), 32631 ) 
+) / 1000 
+ FROM spt_Polygons 
+ WHERE  elementID = 4023212;
+
+
+SELECT ST_Azimuth
+(
+MakePoint( -4.357,57.338 ) ,
+ClosestPoint
+(
+  polygon, 
+  MakePoint( -4.357,57.338 )
+ ) 
+) * 180 / 3.1415927  
+FROM spt_Polygons
+ WHERE  elementID = 4023212;
+
+//The answer is:
+SELECT
+   ST_Distance(ST_Transform(polygon, 32631), ST_Transform(MakePoint(-4.357, 57.338, 4326), 32631)) / 1000 AS distance,
+   ST_Azimuth(MakePoint(-4.357, 57.338), ClosestPoint(polygon, MakePoint(-4.357, 57.338))) * 180 / 3.1415927 AS bearing
+ FROM spt_Polygons
+ WHERE elementID = 4023212;

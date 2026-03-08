@@ -1,0 +1,9 @@
+Order of execution 
+
+1.  Extract all Levels (2 through 8).
+2. Populate links table with contains and borders.
+3.  Derive Country Polygons (Builds the Sovereign shells from high-res ways).
+4. Update links table for new country polygons 
+5.  Identify Borders & Set Colors.
+6.  Simplify ways and polygons 
+7.  Update Visibility (Final area-based filtering).

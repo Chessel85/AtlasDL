@@ -1,0 +1,54 @@
+--Selects n nearest neighbours, area of polygon, distance in metres and bearing in degrees of a point from polygons table  
+SELECT t.value, p.area,  
+ ST_Distance
+ ( 
+ ST_Transform( polygon, 32631 ),  
+ St_Transform( MakePoint( -3.150,54.540 , 4326  ), 32631 ) 
+) / 1000 AS distance ,
+ ST_Azimuth
+(
+MakePoint( -3.150,54.540 ) ,
+ClosestPoint
+(
+  p.polygon, 
+  MakePoint( -3.150,54.540 )
+ ) 
+) * 180 / PI() AS bearing   
+ FROM knn2 AS k
+ JOIN spt_Polygons AS p ON k.FID = p.id 
+ JOIN  tbl_Tags AS t ON t.elementID = p.elementID 
+ WHERE f_table_name = 'spt_Polygons' AND ref_geometry = MakePoint ( -3.150,54.540 ) AND radius = 0.5 AND max_items = 3 AND expand = 1
+ AND t.key='name';
+
+
+--the below shows how this query grew from a small knn2 query.
+SELECT * FROM knn2
+
+WHERE f_table_name = 'spt_Polygons' AND ref_geometry = MakePoint ( -3.15, 54.583 ) AND radius = 1.0;
+
+loch ness id = 4023212
+fid = 749
+
+
+
+SELECT p.elementID   FROM knn2 AS k
+JOIN spt_Polygons AS p ON k.FID = p.id 
+ WHERE f_table_name = 'spt_Polygons' AND ref_geometry = MakePoint ( -3.15, 54.583 ) AND radius = 1.0;
+
+SELECT t.value FROM knn2 AS k
+JOIN spt_Polygons AS p ON k.FID = p.id 
+ JOIN  tbl_Tags AS t ON t.elementID = p.elementID 
+ WHERE f_table_name = 'spt_Polygons' AND ref_geometry = MakePoint ( -3.15, 54.583 ) AND radius = 1.0
+ AND t.key='name';
+
+SELECT t.value, 
+ ST_Distance
+ ( 
+ ST_Transform( polygon, 32631 ),  
+ St_Transform( MakePoint( -3.150,54.540 , 4326  ), 32631 ) 
+) / 1000 
+ FROM knn2 AS k
+ JOIN spt_Polygons AS p ON k.FID = p.id 
+ JOIN  tbl_Tags AS t ON t.elementID = p.elementID 
+ WHERE f_table_name = 'spt_Polygons' AND ref_geometry = MakePoint ( -3.150,54.540 ) AND radius = 1.0
+ AND t.key='name';

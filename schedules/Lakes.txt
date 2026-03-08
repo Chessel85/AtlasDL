@@ -1,0 +1,12 @@
+//Do not leave leading or trailing spaces
+BoundingBox=United Kingdom
+LatDivisions=1
+LonDivisions=1
+DropTag=name*
+KeepTag=name
+KeepTag=name:en
+RequiredTag=[natural=water]
+RequiredTag=[water=lake]
+ClearData=yes
+Go=relations
+ClearFilters=yes

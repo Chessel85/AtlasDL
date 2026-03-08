@@ -1,0 +1,100 @@
+//Defines the steps for creating an accessible atlas database 
+database=land.db
+
+
+//Simplify ways and subsequently polygons 
+column=2
+DouglasPeukerTolerance=5
+simplifyWaysAndPolygons=yes
+
+column=3
+DouglasPeukerTolerance=10
+simplifyWaysAndPolygons=yes
+
+column=4
+DouglasPeukerTolerance=20
+simplifyWaysAndPolygons=yes
+
+end=yes
+
+//Set when polygons are displayed based on their area with small polygons not being displayed at high bands 
+//Critical that calls are made in ascending area size
+//If area >= 0 put in band 1 
+areaThreshold=0
+zoomBand=1
+updatePolygonVisibility=yes
+
+//If area >= 1 km square then band 2 
+areaThreshold=1
+zoomBand=2
+updatePolygonVisibility=yes
+
+//If area >= 10 square kilometres then band 3
+areaThreshold=10
+zoomBand=3
+updatePolygonVisibility=yes
+
+//If area >= 100 then band 4 
+areaThreshold=100
+zoomBand=4
+updatePolygonVisibility=yes
+end=yes
+
+//Simplify ways and subsequently polygons 
+column=3
+DouglasPeukerTolerance=20
+simplifyWaysAndPolygons=yes
+column=4
+DouglasPeukerTolerance=50
+simplifyWaysAndPolygons=yes
+
+
+//Exclude France and Russia
+layer=countries
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=2]
+excludeByTag=[name:en=France]
+excludeByTag=[name:en=Russia]
+getGeodeskRelations=yes
+
+
+//Get metropolitan France 
+layer=countries
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=3][name:en='Metropolitan France']
+getGeodeskRelations=yes
+
+//Get French dependencies which are level 3 and have an is in tag
+layer=countries
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=3][is_in:country=France]
+getGeodeskRelations=yes
+
+//Get Russia as current planet latest 30th October 2025 leaves 2 line strings 
+layer=countries
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=2][name:en=Russia]
+getGeodeskRelations=yes
+
+//Have a bunch of relations so work out which border each other 
+identifyBorders=maritime
+setColours=yes
+
+//Setup a download of coastlines  
+layer=coastlines
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=aw[natural=coastline]
+getGeodeskWays=yes
+
+//Remove territorial waters
+layer=territorialWaters
+removeTerritorialWaters=yes
+
+//Retrieve islands  which must be done after territorial waters
+layer=islands
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[place=island][name]
+//geodeskAreaFilter=a[type=boundary][boundary=administrative][admin_level=2][name:en='United Kingdom']
+getGeodeskRelations=yes
+
+

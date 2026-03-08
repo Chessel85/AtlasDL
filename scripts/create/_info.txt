@@ -1,0 +1,6 @@
+--To force creation in specific order file prefixes are used as follows:
+a = reference data
+b = fundamental geometry data
+c = derived geometry data
+d = geometry dependent tables
+e = triggers

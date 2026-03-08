@@ -1,0 +1,81 @@
+INSERT INTO tbl_BordersNonMaritime (
+    fromRelationName,
+    toRelationName,
+    fromRelationID,
+    toRelationID,
+    maritime
+)
+WITH RelationNames AS (
+    -- 1. Finds the best name ('name' or 'name:en') for every relation (elementType = 3)
+    SELECT
+        t.elementId AS rel_id,
+        COALESCE(
+            MAX(CASE WHEN t.key = 'name:en' THEN t.value END),
+            MAX(CASE WHEN t.key = 'name' THEN t.value END),
+            'Unnamed Relation ' || t.elementId
+        ) AS rel_name
+    FROM
+        tbl_tags t
+    WHERE
+        t.elementType = 3
+    GROUP BY
+        t.elementId
+),
+BorderingPolygonRelations AS (
+    -- 2. Identifies unique pairs of relations (A, B) that border each other
+    SELECT DISTINCT
+        CASE WHEN owner1.elementId < owner2.elementId THEN owner1.elementId ELSE owner2.elementId END AS rel_a_id,
+        CASE WHEN owner1.elementId < owner2.elementId THEN owner2.elementId ELSE owner1.elementId END AS rel_b_id
+    FROM
+        tbl_waylists p1
+    JOIN
+        tbl_wayLists p2 ON p1.wayId = p2.wayId AND p1.polygonId <> p2.polygonId
+    JOIN
+        tbl_polygonOwners owner1 ON p1.polygonId = owner1.polygonId AND owner1.elementType = 3
+    JOIN
+        tbl_polygonOwners owner2 ON p2.polygonId = owner2.polygonId AND owner2.elementType = 3
+    -- ** NEW FILTERING JOINS ADDED HERE **
+    JOIN
+        tbl_layerPolygons l1 ON p1.polygonId = l1.polygonId AND l1.layerId = 1 -- Filter Poly 1 to Layer 1 (Countries)
+    JOIN
+        tbl_layerPolygons l2 ON p2.polygonId = l2.polygonId AND l2.layerId = 1 -- Filter Poly 2 to Layer 1 (Countries)
+    -- ** END NEW FILTERING **
+    WHERE
+        owner1.elementId <> owner2.elementId
+    GROUP BY
+        p1.polygonId,
+        p2.polygonId,
+        owner1.elementId,
+        owner2.elementId
+    HAVING
+        COUNT(p1.wayId) > 0
+)
+-- 3. INSERT A -> B
+SELECT
+    A_name.rel_name AS fromRelationName,
+    B_name.rel_name AS toRelationName,
+    ubr.rel_a_id AS fromRelationID,
+    ubr.rel_b_id AS toRelationID,
+    0 AS maritime
+FROM
+    BorderingPolygonRelations ubr
+JOIN
+    RelationNames A_name ON ubr.rel_a_id = A_name.rel_id
+JOIN
+    RelationNames B_name ON ubr.rel_b_id = B_name.rel_id
+
+UNION ALL
+
+-- 4. INSERT B -> A
+SELECT
+    B_name.rel_name AS fromRelationName,
+    A_name.rel_name AS toRelationName,
+    ubr.rel_b_id AS fromRelationID,
+    ubr.rel_a_id AS rel_a_id,
+    0 AS maritime
+FROM
+    BorderingPolygonRelations ubr
+JOIN
+    RelationNames A_name ON ubr.rel_a_id = A_name.rel_id
+JOIN
+    RelationNames B_name ON ubr.rel_b_id = B_name.rel_id;

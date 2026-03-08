@@ -1,0 +1,9 @@
+//Do not leave leading or trailing spaces
+BoundingBox=(34,-14,64,30)
+LatDivisions=8
+LonDivisions=8
+
+//Cities
+RequiredTag=[place=city]
+ClearData=yes
+Go=nodes

@@ -1,0 +1,12 @@
+//Defines the steps for creating an accessible atlas database 
+database=land.db
+step=CreateSpatialDatabase
+//step=OpenSpatialDatabase
+
+//Setup a download of coastlines 
+layer=coastline
+boundingBox=South Africa
+xDivisions=2
+yDivisions=2
+requiredTag=[natural=coastline]
+step=DownloadWays

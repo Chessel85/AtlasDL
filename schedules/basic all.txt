@@ -1,0 +1,147 @@
+//Defines the steps for creating base country data for accessible atlas 
+database=land.db
+
+//Section: data extraction 
+//Get admin levels 2 to 8 from Europe 
+//Starting with countries admin level 2 
+//Exclude France and Russia and United States 
+layerName=countries
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=2]
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+excludeByTag=[name:en=France]
+excludeByTag=[name:en='United States']
+excludeByTag=[name:en=Russia]
+getGeodeskRelations=yes
+
+//Get metropolitan France 
+layerName=countries
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=3][name:en='Metropolitan France']
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+getGeodeskRelations=yes
+
+//Get French dependencies which are level 3 and have an is in tag though none inside Europe 
+layerName=countries
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=3][is_in:country=France]
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+getGeodeskRelations=yes
+
+//Do not get Russia as current planet latest 30th October 2025 leaves 2 line strings 
+layerName=countries
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=2][name:en=Russia]
+getGeodeskRelations=no
+
+//Admin level 4 
+layerName=adminLevel4
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=4]
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+getGeodeskRelations=yes
+
+//Admin level 5 
+layerName=adminLevel5
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=5]
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+getGeodeskRelations=yes
+
+//Admin level 6 
+layerName=adminLevel6
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=6]
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+getGeodeskRelations=yes
+
+//Admin level 7 
+layerName=adminLevel7
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=7]
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+getGeodeskRelations=yes
+
+//Admin level 8 
+layerName=adminLevel8
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=8]
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+getGeodeskRelations=yes
+
+//Section: Preprocess relationships 
+preprocessLinks-contains=yes
+preprocessLinks-borders=yes
+
+
+//Section: Build country polygons based on higher admin level polygons that exclude territorial waters 
+//Currently putting into the same polygon table as everything else and have to run preprocessing again 
+layerName=countryPolygons
+layerGeometry=polygons
+createLayer=yes
+deriveCountryPolygons=yes
+
+
+//Section: Preprocess relationships  again for country polygons 
+preprocessLinks-contains=yes
+preprocessLinks-borders=yes
+
+//Section: Get borders and set colours 
+//Have a bunch of relations so work out which border each other 
+identifyBorders=Nonmaritime
+setColours=yes
+
+//Section: Simplify ways and polygons 
+//Column 1 is the original with coluns 2, 3 and 4 being progressively less detailed 
+column=2
+DouglasPeukerTolerance=5
+simplifyWaysAndPolygons=yes
+
+column=3
+DouglasPeukerTolerance=10
+simplifyWaysAndPolygons=yes
+
+column=4
+DouglasPeukerTolerance=20
+simplifyWaysAndPolygons=yes
+
+//Section: Update visibility 
+//Set when polygons are displayed based on their area with small polygons not being displayed at high bands 
+//Critical that calls are made in ascending area size
+//If area >= 0 put in band 1  meaning only smallest polygons get shown at high zoom / small step size
+areaThreshold=0
+zoomBand=1
+updatePolygonVisibility=yes
+
+//If area >= 1 km square then band 2 
+areaThreshold=1
+zoomBand=2
+updatePolygonVisibility=yes
+
+//If area >= 10 square kilometres then band 3
+areaThreshold=10
+zoomBand=3
+updatePolygonVisibility=yes
+
+//If area >= 100 then band 4 
+areaThreshold=100
+zoomBand=4
+updatePolygonVisibility=yes

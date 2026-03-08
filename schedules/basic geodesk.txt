@@ -1,0 +1,39 @@
+//Defines the steps for creating an accessible atlas database 
+database=land.db
+//step=CreateSpatialDatabase
+step=OpenSpatialDatabase
+
+
+
+//Get countries from geodesk planet data 
+//Exclude France so can get dependencies separately 
+layer=countries
+excludeRelation=France
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=2][name:en=France]
+step=GetPlanetRelations
+
+//Get French metropolitan or what we normally call France 
+layer=countries
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=2][name:en='Metropolitan France']
+step=GetPlanetRelations
+
+
+
+//Get French dependencies which are level 3 and have an is in tag
+layer=countries
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=3][is_in:country=France]
+step=GetPlanetRelations
+
+
+//Have a bunch of relations so work out which border each other 
+identifyBorders=maritime
+setColours=yes
+
+//Setup a download of coastlines 
+layer=coastline
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=aw[natural=coastline]
+step=GetPlanetWays

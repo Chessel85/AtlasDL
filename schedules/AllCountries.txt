@@ -1,0 +1,11 @@
+//Do not leave leading or trailing spaces
+BoundingBox=all
+LatDivisions=18
+LonDivisions=36
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="2"]
+ExcludeTag=[boundary=ceremonial]
+ClearData=yes
+Go=relations
+ClearFilters=yes

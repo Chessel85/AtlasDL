@@ -1,0 +1,40 @@
+//Do not leave leading or trailing spaces
+BoundingBox=(50,-8,59,2)
+LatDivisions=1
+LonDivisions=1
+
+//Admin 2 
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="2"]
+ClearData=yes
+Go=relations
+ClearFilters=yes
+
+//Admin 4
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="4"]
+ClearData=no
+Go=relations
+ClearFilters=yes
+
+//Admin 6
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="6"]
+ClearData=no
+Go=relations
+ClearFilters=yes
+
+
+//Islands and islets  with names
+RequiredTag=["place"~"^(island|islet)"]
+RequiredTag=["name"]
+ClearData=no
+Go=relations
+
+//Cities
+RequiredTag=[place=city]
+ClearData=no
+Go=nodes

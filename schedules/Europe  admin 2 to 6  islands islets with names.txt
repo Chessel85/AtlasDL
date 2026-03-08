@@ -1,0 +1,56 @@
+//Do not leave leading or trailing spaces
+BoundingBox=(34,-14,64,30)
+LatDivisions=4
+LonDivisions=4
+
+//Admin 2 
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="2"]
+//ExcludeTag=["border_type"="territorial"]
+ClearData=no
+//Go=relations
+ClearFilters=yes
+
+//Admin 3 
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="3"]
+ExcludeTag=["border_type"="territorial"]
+ClearData=no
+//Go=relations
+ClearFilters=yes
+
+//Admin 4
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="4"]
+ClearData=no
+//Go=relations
+ClearFilters=yes
+
+//Admin 5
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="5"]
+ExcludeTag=["border_type"="territorial"]
+ClearData=no
+//Go=relations
+ClearFilters=yes
+
+
+//Admin 6
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="6"]
+//ExcludeTag=["border_type"="territorial"]
+ClearData=no
+//Go=relations
+ClearFilters=yes
+
+
+//Islands with names
+RequiredTag=["place"="island"]
+RequiredTag=["name"]
+ClearData=no
+Go=relations

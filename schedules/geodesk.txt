@@ -1,0 +1,14 @@
+//Defines the steps for creating an accessible atlas database 
+database=land.db
+step=CreateSpatialDatabase
+//step=OpenSpatialDatabase
+
+//Get countries from geodesk planet data 
+layer=countries
+geodeskFilter=a[type=boundary][boundary=administrative]["admin_level"="2"]
+//requiredTag=["name:en"="Mozambique"]
+step=GetPlanetData
+
+//Have a bunch of relations so work out which border each other 
+identifyBorders=maritime
+setColours=yes

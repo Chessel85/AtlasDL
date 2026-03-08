@@ -1,0 +1,12 @@
+//Do not leave leading or trailing spaces
+BoundingBox=Belgium
+LatDivisions=1
+LonDivisions=1
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="2"]
+RequiredTag=["name:en"="Belgium"]
+ExcludeTag=[boundary=ceremonial]
+ClearData=yes
+Go=relations
+ClearFilters=yes

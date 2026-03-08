@@ -1,0 +1,14 @@
+//Do not leave leading or trailing spaces
+BoundingBox=Spain
+LatDivisions=1
+LonDivisions=1
+DropTag=name*
+KeepTag=name
+KeepTag=name:en
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="2"]
+UnwantedTag=[boundary=ceremonial]
+ClearData=yes
+Go=relations
+ClearFilters=yes

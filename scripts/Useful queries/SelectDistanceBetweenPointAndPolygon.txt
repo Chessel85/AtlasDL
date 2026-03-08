@@ -1,0 +1,7 @@
+SELECT ST_Distance
+ ( 
+ ST_Transform( polygon, 32631 ) , 
+ St_Transform( MakePoint( -4.357,57.338 , 4326  ), 32631 ) 
+) / 1000 
+ FROM spt_Polygons 
+ WHERE  elementID = 4023212;

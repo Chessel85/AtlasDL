@@ -1,0 +1,19 @@
+--Get the name of the relation owning the polygon containing the target point 
+--Substitute coordinates with question marks when moving to c++ 
+SELECT t.value, p.area  FROM tbl_Tags AS t
+ JOIN spt_Polygons AS p ON t.elementID = p.elementID
+ WHERE t.key = 'name' AND 
+t.elementID IN (
+SELECT p.elementID 
+ FROM spt_Polygons AS p 
+ WHERE ROWID IN
+   ( 
+  --Use index for quick check 
+    SELECT ROWID FROM SpatialIndex WHERE(( f_table_name = 'spt_Polygons' ) 
+  AND
+    ( search_frame =  MakePoint( -3.15, 54.583 ) )) )  
+   AND 
+  --Precise check on point in polygon 
+   ( ST_Intersects( polygon, MakePoint( -3.15, 54.583 ) ) ) 
+ )
+ORDER BY p.area DESC;

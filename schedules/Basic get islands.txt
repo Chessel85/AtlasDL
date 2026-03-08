@@ -1,0 +1,9 @@
+//Defines the steps for creating an accessible atlas database 
+database=land.db
+//step=CreateSpatialDatabase
+step=OpenSpatialDatabase
+
+//Retrieve islands matching them to polygons 
+geodeskSource=e:/osmdata/planet-latest.gol
+islandsFilter=a[place=islet][name='The Needles']
+step=matchIslands

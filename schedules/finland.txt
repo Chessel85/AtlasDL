@@ -1,0 +1,42 @@
+//Defines the steps for creating an accessible atlas database 
+database=finland.db
+//step=CreateSpatialDatabase
+step=OpenSpatialDatabase
+
+
+//Remove territorial waters
+layer=territorialWaters
+removeTerritorialWaters=yes
+end=yes
+
+//Get Finland  from geodesk planet data 
+layer=countries
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=2]['name:en'='Finland']
+getGeodeskRelations=yes
+
+//Setup a download of coastlines  
+layer=coastlines
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=aw[natural=coastline]
+geodeskAreaFilter=a[type=boundary][boundary=administrative][admin_level=2]['name:en'='Finland']
+getGeodeskWays=yes
+
+//Remove territorial waters
+layer=territorialWaters
+removeTerritorialWaters=yes
+end=yes
+
+//Remove territorial waters
+layer=territorialWaters
+removeTerritorialWaters=yes
+end=yes
+
+
+//Retrieve islands  which must be done after territorial waters
+layer=islands
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[place=island][name]
+//geodeskAreaFilter=a[type=boundary][boundary=administrative][admin_level=2][name:en='United Kingdom']
+getGeodeskRelations=yes
+

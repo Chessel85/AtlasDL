@@ -1,0 +1,10 @@
+--Get the name of the relation owning the polygon containing the target point but not using any indexes  
+--Substitute coordinates with question marks when moving to c++ 
+SELECT t.value FROM tbl_Tags AS t
+ JOIN spt_Polygons AS p ON t.elementID = p.elementID
+ WHERE t.key = 'name' AND 
+t.elementID IN (
+SELECT p.elementID  
+ FROM     spt_Polygons    AS p 
+ WHERE     ST_Contains( p.polygon, MakePoint(  -3.15, 54.583) ) 
+);

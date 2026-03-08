@@ -1,0 +1,50 @@
+SELECT
+    firstNodeId,
+    COUNT(*) AS count_of_ways
+  FROM
+    spt_ways
+  GROUP BY
+    firstNodeId
+  HAVING
+    COUNT(*) > 1;
+
+SELECT
+    SUM(count_of_ways)
+  FROM
+    (
+      SELECT
+      COUNT(*) AS count_of_ways
+    FROM
+      spt_ways
+    GROUP BY
+      firstNodeId
+    HAVING
+      COUNT(*) > 1
+  );
+
+SELECT
+    r.relationId,
+    r.polygonId,
+    r.innerPolygonId,
+    r.sequenceNumber
+  FROM
+    tbl_relationWayLists  AS r
+  WHERE
+    relationId = 87565 AND 
+    r.wayId IN (
+    SELECT
+      wayId
+    FROM
+      spt_ways
+    WHERE
+      firstNodeId IN (
+        SELECT
+          firstNodeId
+        FROM
+          spt_ways
+        GROUP BY
+          firstNodeId
+        HAVING
+          COUNT(*) > 1
+      )
+  );

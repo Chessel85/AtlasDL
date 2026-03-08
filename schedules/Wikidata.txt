@@ -1,0 +1,7 @@
+//Do not leave leading or trailing spaces
+BoundingBox=all
+LatDivisions=4
+LonDivisions=8
+
+//Get relation areas from Wikidata or calculate from constituent polygons 
+GetRelationAreas=yes

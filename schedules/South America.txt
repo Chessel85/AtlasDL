@@ -1,0 +1,10 @@
+//Do not leave leading or trailing spaces
+BoundingBox=(-55.29,-81.8,6.00,-38.47) 
+LatDivisions=2
+LonDivisions=2
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="2"]
+UnwantedTag=[boundary=ceremonial]
+ClearData=yes
+Go=relations

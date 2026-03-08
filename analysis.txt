@@ -1,0 +1,26 @@
+Polygon 1 has a problem when removing territorial waters.
+The country polygon does not find the head of the coastline.  So want to see how close it gets by loading the start and end points of each way and seeing how far the coastline head node is from the current way tail node.
+When importing polygon 1 for spain there are 8 warnings about too many parent ways and these all occur at coordinates 0,0.
+WARNING: Possible segment crossing at head node "0.0" , "0.0" for way id 45675673 File: processor.cpp Line:307
+The head node id is 344923164 and already exists in the node master list so either created earlier in construction of country polygon or in coastline 
+It is the tail node in polygon 1 sequence number 137 and head node in sequence number 138 
+When loading coastlines, this node id 344923164  is the first node for way id 408331588
+WARNING: Possible segment crossing at head node "-1.7847046" , "43.3495059" for way id 45675673 File: processor.cpp Line:313
+WARNING: Possible segment crossing at head node "-8.8709665" , "41.8639288" for way id 75367173 File: processor.cpp Line:313
+WARNING: Possible segment crossing at head node "-7.3948663" , "37.1661936" for way id 10512698 File: processor.cpp Line:313
+WARNING: Possible segment crossing at head node "-5.3820294" , "35.9124771" for way id 1136594689 File: processor.cpp Line:313
+WARNING: Possible segment crossing at head node "-5.3430643" , "35.8708627" for way id 182763951 File: processor.cpp Line:313
+WARNING: Possible segment crossing at head node "3.1746523" , "42.4351759" for way id 15412298 File: processor.cpp Line:313
+WARNING: Possible segment crossing at head node "-5.3388535" , "36.1528477" for way id 345004359 File: processor.cpp Line:313
+WARNING: Possible segment crossing at head node "-5.3518028" , "36.1548102" for way id 126855339 File: processor.cpp Line:313
+When removing coastlines for polygon 1, get error that head of coastline cannot be found.
+Get distance reports of zero at points  1145 when searching for coastline tail and  394 but get mutliple lists of points which I don't understand 
+Cause of the problem is Gibraltar where the coastline is broken because Gibaltor owns it.
+Solution is to find a way to link the two Gibraltar ends of the Spanish coastline with ways along the Spain/Gibraltar border control.
+
+
+select count(*) from spt_ways 
+  WHERE X( ST_StartPoint( way1 )) = 0;
+
+SELECT X( EndPoint( way1 )) FROM spt_ways 
+  where wayId = 45675673;

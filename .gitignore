@@ -1,0 +1,40 @@
+# --- CMake / Build Folders ---
+/build/
+/out/
+/CMakeFiles/
+CMakeCache.txt
+*.cmake
+
+# --- Visual Studio Specific ---
+# These are local caches and database files that VS creates
+.vs/
+*.sln
+*.vcxproj
+*.filters
+*.user
+*.suo
+bin/
+obj/
+x64/
+
+# --- Qt Specific ---
+# Generated files created by AUTOMOC/AUTOUIC
+*_autogen/
+ui_*.h
+moc_*.cpp
+qrc_*.cpp
+
+# --- OS / Miscellaneous ---
+# Thumbnails and folder settings
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+#project files
+/data/
+/files/
+/logs/
+CMake run.txt
+atlas.log
+AtlasDL.pro*.db
+CMakeUserPresets.json

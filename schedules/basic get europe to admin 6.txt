@@ -1,0 +1,79 @@
+//Defines the steps for creating an accessible atlas database 
+database=land.db
+
+//Have a bunch of relations so work out which border each other 
+//identifyBorders=maritime
+setColours=yes
+end=yes
+
+//Get admin levels 2 to 6 from Europe 
+//Starting with countries admin level 2 
+//Exclude France and Russia and United States 
+layerName=countries
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=2]
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+excludeByTag=[name:en=France]
+excludeByTag=[name:en='United States']
+excludeByTag=[name:en=Russia]
+getGeodeskRelations=yes
+
+//Get metropolitan France 
+layerName=countries
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=3][name:en='Metropolitan France']
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+getGeodeskRelations=yes
+
+//Get French dependencies which are level 3 and have an is in tag though none inside Europe 
+layerName=countries
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=3][is_in:country=France]
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+getGeodeskRelations=yes
+
+//Do not get Russia as current planet latest 30th October 2025 leaves 2 line strings 
+layerName=countries
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=2][name:en=Russia]
+getGeodeskRelations=no
+
+//Admin level 4 
+layerName=adminLevel4
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=4]
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+getGeodeskRelations=yes
+
+//Admin level 5 
+layerName=adminLevel5
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=5]
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+getGeodeskRelations=yes
+
+//Admin level 6 
+layerName=adminLevel6
+layerGeometry=polygons
+createLayer=yes
+geodeskSource=e:/osmdata/planet-latest.gol
+geodeskFilter=a[type=boundary][boundary=administrative][admin_level=6]
+geodeskAreaFilter=(-15.0,34.0,60.0,80.0)
+getGeodeskRelations=yes
+end=yes
+
+//Have a bunch of relations so work out which border each other 
+identifyBorders=maritime
+setColours=yes

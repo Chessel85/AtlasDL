@@ -1,0 +1,21 @@
+//Do not leave leading or trailing spaces
+BoundingBox=all
+LatDivisions=4
+LonDivisions=8
+RequiredTag=[type=boundary]
+RequiredTag=[boundary=administrative]
+RequiredTag=["admin_level"="2"]
+UnwantedTag=[boundary=ceremonial]
+ClearData=no
+//Go=relations
+ClearFilters=yes
+
+//Islands with names
+RequiredTag=["place"="island"]
+RequiredTag=["name"]
+RequiredTag=["wikidata"]
+ClearData=no
+Go=relations
+
+//Get relation areas from Wikidata or calculate from constituent polygons 
+GetRelationAreas=yes
