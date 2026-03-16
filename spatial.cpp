@@ -557,7 +557,7 @@ bool CSpatial::updateAreas()
 bool CSpatial::updatePolygonsWithLayersAndColours()
 {
     //Update the polygons table with the layer of each polygon and the colour index to draw it 
-    bool ok = m_DbManager->executeSqlFile("scripts/Update/UpdatePolygonsWithLayerAndColour.sql");
+    bool ok = m_DbManager->executeSqlFile( SCRIPTS_PATH "Update/UpdatePolygonsWithLayerAndColour.sql");
     if (!ok)
         return false;
 

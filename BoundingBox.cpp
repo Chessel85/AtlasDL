@@ -236,6 +236,8 @@ bool CBoundingBox::Overlap(CBoundingBox& rBB2)
     //Check for horizontal overlap and if this is true check for vertical overlap 
     if (m_west <= rBB2.m_east && rBB2.m_west <= m_east)
         return m_south <= rBB2.m_north && rBB2.m_south <= m_north;
+
+    return false;
 }
 
 bool CBoundingBox::Contains(CBoundingBox& rBB2)

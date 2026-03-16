@@ -38,3 +38,4 @@ CMake run.txt
 atlas.log
 AtlasDL.pro*.db
 CMakeUserPresets.json
+out.txt

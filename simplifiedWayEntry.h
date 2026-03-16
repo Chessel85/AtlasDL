@@ -4,9 +4,9 @@
 
 struct SimplifiedWayEntry 
 {
-    int polygonId;
-    int innerRingId;
-    int sequenceNumber;
-    quint64 wayId;
+    int polygonId = 0;
+    int innerRingId = 0;
+    int sequenceNumber = 0;
+    quint64 wayId = 0;
     std::string wkt;
 };
