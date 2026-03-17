@@ -13,6 +13,7 @@ Q_LOGGING_CATEGORY(scheduleManagement, "schedule.management")
 const QStringList CSchedule::m_validKeys = 
 {
     "database",
+    "read",
     "getGeodeskRelations",
     "getGeodeskWays",
     "removeTerritorialWaters",
@@ -56,10 +57,11 @@ CSchedule::~CSchedule()
 
 bool CSchedule::readInstructionFile(const QString filename)
 {
-    QFile file(filename);
+    QString pathAndFilename = SCHEDULES_PATH + filename;
+    QFile file(pathAndFilename );
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) 
     {
-        qCCritical(scheduleManagement ) << "Could not open schedule file:" << filename;
+        qCCritical(scheduleManagement ) << "Could not open schedule file:" << pathAndFilename;
         return false;
     }
 

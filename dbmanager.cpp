@@ -45,24 +45,26 @@ QString CDbManager::getDatabaseName() const
 
 bool CDbManager::createOpenDatabase(const QString& databaseName )
 {
-    //Set database name
-    m_databaseName = "data/" + databaseName;
-
     //Check database name is not empty 
-    if (m_databaseName == "")
+    if (databaseName == "")
     {
         qCCritical(DbManagerManagement) << "No database name so unable to create it.";
         return false;
     }
 
+    //Add path to database name
+    QString appDir = QCoreApplication::applicationDirPath();
+    m_databaseName = appDir + "/data/" + databaseName;
+
     // Find out if database already exists needed later on 
     bool exists = QFile::exists(m_databaseName);
 
     //Create the sqlite3 instance 
+    qCInfo(DbManagerManagement) << "Opening database" << m_databaseName;
     int rc = sqlite3_open(m_databaseName.toUtf8().constData(), &m_sqlite3db);
     if( rc != SQLITE_OK) 
     {
-        qCCritical( DbManagerManagement) << "Failed to create/open database:" << sqlite3_errmsg(m_sqlite3db);
+        qCCritical( DbManagerManagement) << "Failed to create/open database" << m_databaseName << ":" << sqlite3_errmsg(m_sqlite3db);
         sqlite3_close(m_sqlite3db);
         m_sqlite3db = nullptr;
         return false;
@@ -72,7 +74,7 @@ bool CDbManager::createOpenDatabase(const QString& databaseName )
     rc = sqlite3_exec(m_sqlite3db, "PRAGMA foreign_keys = ON;", nullptr, nullptr, nullptr);
     if (rc != SQLITE_OK)
     {
-        qCCritical(DbManagerManagement) << "Failed to enable Foreign Keys:" << sqlite3_errmsg(m_sqlite3db);
+        qCCritical(DbManagerManagement) << "Failed to enable Foreign Key cascades:" << sqlite3_errmsg(m_sqlite3db);
     }
 
     // Make it a Spatialite database by loading the spatialite extension and creating metadata
@@ -88,8 +90,7 @@ bool CDbManager::createOpenDatabase(const QString& databaseName )
         return false;
     }
 
-    //Load extension 
-    //rc = sqlite3_load_extension(m_sqlite3db, "mod_spatialite", "sqlite3_spatialite_init",0);
+    //Load spatialite extension 
     rc = sqlite3_load_extension(m_sqlite3db, "mod_spatialite", 0, 0);
     if (rc != SQLITE_OK) 
     {
@@ -106,7 +107,7 @@ bool CDbManager::createOpenDatabase(const QString& databaseName )
         return true;
     }
 
-    // Initialize the spatialite metadata
+    // Initialize the spatialite metadata 
     char* zErrMsg = nullptr;
     rc = sqlite3_exec(m_sqlite3db, "SELECT InitSpatialMetaDataFull(true);", nullptr, nullptr, &zErrMsg);
     if (rc != SQLITE_OK) 
@@ -119,7 +120,8 @@ bool CDbManager::createOpenDatabase(const QString& databaseName )
     }
 
     // Add application specific tables
-    bool res = createApplicationTables("../scripts/create");
+    //bool res = createApplicationTables("../scripts/create");
+    bool res = readScriptFile( "CreateBaseTables.txt" );
     if (!res )
     {
         qCCritical(DbManagerManagement) <<  "Failed to create application tables:" << zErrMsg;
@@ -134,13 +136,72 @@ bool CDbManager::createOpenDatabase(const QString& databaseName )
     return true;
 }
 
-bool CDbManager::createApplicationTables(const QString& scriptsPath) 
+bool CDbManager::readScriptFile(const QString& filename )
+{
+    //Check database is okay 
+    if (!m_sqlite3db)
+    {
+        qCCritical(DbManagerManagement) << "Database is not open.";
+        return false;
+    }
+
+    // Resolve full path 
+    QString fullPath = SCRIPTS_PATH + filename;
+    QFile masterFile(SCRIPTS_PATH + filename );
+
+    if (!masterFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qCCritical(DbManagerManagement) << "Could not open script file:" << fullPath;
+        return false;
+    }
+
+    QTextStream in(&masterFile);
+    bool allSuccess = true;
+
+    while (!in.atEnd() && allSuccess )
+    {
+        QString line = in.readLine().trimmed();
+
+        // 1. Ignore empty lines or comments starting with "--"
+        if (line.isEmpty() || line.startsWith("--"))
+        {
+            continue;
+        }
+
+        // 2. Look for lines starting with ".read"
+        if (line.startsWith(".read"))
+        {
+            // Extract filename: split by space and take the second part
+            // Using Section handles cases with multiple spaces effectively
+            QString sqlFileName = line.section(' ', 1, 1).trimmed();
+
+            if (sqlFileName.isEmpty())
+            {
+                qCWarning(DbManagerManagement) << "Found .read command but no filename specified.";
+                allSuccess = false;
+                continue;
+            }
+
+            if (!executeSqlFile(sqlFileName ))
+            {
+                qCCritical(DbManagerManagement) << "Failed to execute script:" << sqlFileName;
+                allSuccess = false;
+            }
+        }
+    }
+
+    masterFile.close();
+    return allSuccess;
+}
+
+bool CDbManager::createApplicationTables(const QString& scriptsPath)
 {
     if (!m_sqlite3db) 
     {
         qCCritical(DbManagerManagement) << "Database is not open. Cannot execute scripts.";
         return false;
     }
+
     QDir scriptsDir(QCoreApplication::applicationDirPath() + QDir::separator() + scriptsPath);
     if (!scriptsDir.exists()) 
     {
@@ -197,11 +258,9 @@ bool CDbManager::executeSqlFile(const QString& scriptFilePath)
         return false;
     }
 
-    // 2. Construct Absolute File Path
-    // Use QDir::cleanPath to handle separators and simplify the path.
-    QString absolutePath = QDir::cleanPath(
-        QCoreApplication::applicationDirPath() + QDir::separator() + "../" + scriptFilePath
-    );
+    // Build file path 
+    // QString absolutePath = QDir::cleanPath( QCoreApplication::applicationDirPath() + QDir::separator() + "../" + scriptFilePath );
+    QString absolutePath = SCRIPTS_PATH + scriptFilePath;
 
     QFile file(absolutePath);
 

@@ -19,6 +19,7 @@ public:
     QString getDatabaseName() const;
     bool createOpenDatabase(const QString& databaseName );
     bool createApplicationTables(const QString& scriptsPath);
+    bool readScriptFile(const QString& filename );
     bool executeSqlFile(const QString& scriptFilePath);
     sqlite3* getDbHandle() const;
     const char* errorMessage();

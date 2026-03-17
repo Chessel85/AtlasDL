@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(customMessageHandler);
 
     // Hardcoded schedule file path for this example
-    QString scheduleFilename = "schedules/basic.txt";
+    QString scheduleFilename = "natural.txt";
 
     //Instantiate Conductor to process everything 
     bool result = false;
