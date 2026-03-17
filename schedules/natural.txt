@@ -1,5 +1,5 @@
 //Defines the steps for creating base country data for AtMap 
 database=land.db
 
-//Section:  Create base tables tables 
-createTablesFromTextFile=CreateBaseTables.txt
+//Section:  Create base tables 
+readSQLFiles=CreateBaseTables.txt
