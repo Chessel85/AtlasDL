@@ -13,7 +13,7 @@ Q_LOGGING_CATEGORY(scheduleManagement, "schedule.management")
 const QStringList CSchedule::m_validKeys = 
 {
     "database",
-    "read",
+    "readScript",
     "getGeodeskRelations",
     "getGeodeskWays",
     "removeTerritorialWaters",

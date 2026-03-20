@@ -1,0 +1,32 @@
+--Load Shapefiles for Major oceans and seas
+.loadshp  shpPhysical/ne_10m_geography_marine_polys  spt_marinePolys10  UTF-8 4326 MULTIPOLYGON
+
+--Adapt tables before loading data into generic polygon and point tables 
+ALTER TABLE spt_marinePolys10 ADD COLUMN layerId INTEGER;
+ALTER TABLE spt_marinePolys10 ADD COLUMN centroidX DOUBLE;
+ALTER TABLE spt_marinePolys10 ADD COLUMN centroidY DOUBLE;
+UPDATE spt_marinePolys10 
+  SET 
+    centroidX = ST_X(ST_Centroid(geometry )),
+    centroidY = ST_Y(ST_Centroid(geometry  ));
+
+--insert a layer  do not display 
+INSERT INTO tbl_layers  (layerName, geomCategoryId, selected, display )
+  SELECT 'oceans10', categoryId, 1, 0 FROM ref_geometryCategories WHERE categoryName = 'polygon';
+
+--Copy data across 
+INSERT INTO spt_polygons (  layerId, featureClass, name, mapColour, subRegion, labelX, labelY, wikiDataId, polygon )
+  SELECT 
+  ( SELECT layerId FROM tbl_layers WHERE layerName = 'oceans10' ),
+    featurecla,
+    name_en AS name,
+    -1 AS mapColour,
+    'ocean'AS subRegion,
+    centroidX AS labelX,
+    centroidY AS labelY,
+    wikidataid AS wikiDataId,
+    geometry AS polygon
+  FROM spt_marinePolys10;  
+
+--No longer need the imported table
+SELECT DropTable( 'main', 'spt_marinePolys10' );

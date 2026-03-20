@@ -1,2 +1,5 @@
 //Defines the steps for creating base country data for AtMap 
 database=land.db
+
+//Load base map layers from Natural Earth  10 
+readScript=importShapefiles.spatialite

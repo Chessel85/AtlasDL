@@ -1,0 +1,24 @@
+--Import admin 0 / countries 
+.loadshp shpCultural/ne_10m_admin_0_countries   spt_admin0Countries10 UTF-8 4326 MULTIPOLYGON
+
+--adapt table before importing into generic polygon table
+ALTER TABLE spt_admin0Countries10  ADD COLUMN layerId INTEGER;
+
+--Admin0 Countries  do display 
+INSERT INTO tbl_layers  (layerName, geomCategoryId, selected, display )
+  SELECT 'admin0Countries10', categoryId, 1, 1 FROM ref_geometryCategories WHERE categoryName = 'polygon';
+INSERT INTO spt_polygons (  layerId, featureClass, name, mapColour, subRegion, labelX, labelY, wikiDataId, polygon )
+  SELECT 
+  ( SELECT layerId FROM tbl_layers WHERE layerName = 'admin0Countries10' ),
+    featurecla AS featureClass,
+    name_long AS name,
+    mapcolor7 AS mapColour,
+    subregion AS subRegion,
+    label_x AS labelX,
+    label_y AS labelY,
+    wikidataid AS wikiDataId,
+    geometry AS polygon
+  FROM spt_admin0Countries10; 
+
+--No longer need the imported table
+SELECT DropTable( 'main', 'spt_admin0Countries10' );

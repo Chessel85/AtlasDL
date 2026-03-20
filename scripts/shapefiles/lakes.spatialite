@@ -1,0 +1,31 @@
+--Load Shapefiles for major lakes 
+.loadshp  shpPhysical/ne_10m_lakes spt_lakes10 UTF-8 4326 MULTIPOLYGON
+
+--Adapt tables before loading data into generic polygon and point tables 
+ALTER TABLE spt_lakes10 ADD COLUMN layerId INTEGER;
+ALTER TABLE spt_lakes10 ADD COLUMN centroidX DOUBLE;
+ALTER TABLE spt_lakes10 ADD COLUMN centroidY DOUBLE;
+UPDATE spt_lakes10 
+  SET 
+    centroidX = ST_X(ST_Centroid(geometry )),
+    centroidY = ST_Y(ST_Centroid(geometry ));
+
+--Lakes do display 
+INSERT INTO tbl_layers  (layerName, geomCategoryId, selected, display )
+  SELECT 'lakes10', categoryId, 1, 1  FROM ref_geometryCategories WHERE categoryName = 'polygon';
+INSERT INTO spt_polygons (  layerId, featureClass, name, mapColour, subRegion, labelX, labelY, wikiDataId, polygon )
+  SELECT 
+  ( SELECT layerId FROM tbl_layers WHERE layerName = 'lakes10' ),
+    featurecla AS featureClass,
+    name AS name,
+    10 AS mapColour,
+    'lake'AS subRegion,
+    centroidX AS labelX,
+    centroidY AS labelY,
+    wikidataid AS wikiDataId,
+    CastToMultiPolygon( geometry ) AS polygon
+  FROM spt_lakes10
+  WHERE length( name ) > 0;
+
+--No longer need the imported table
+SELECT DropTable( 'main', 'spt_lakes10' );

@@ -1,0 +1,15 @@
+--import following shapefiles
+.read shapefiles/oceans.spatialite 
+.read shapefiles/admin0.spatialite
+.read shapefiles/admin1.spatialite
+.read shapefiles/lakes.spatialite
+.read shapefiles/populatedPlaces.spatialite
+.read update/UpdatePolygonAreas.sql
+
+--Populate borders 
+.read insert/InsertBorders3.sql
+.read insert/InsertBorders4.sql
+
+--populate contains table
+.read insert/InsertContainsPolygons.sql
+.read insert/InsertContainsPoints.sql

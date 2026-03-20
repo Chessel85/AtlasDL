@@ -1,0 +1,25 @@
+--Import admin 1 / states 
+.loadshp shpCultural/ne_10m_admin_1_states_provinces  spt_admin1States10 UTF-8 4326 MULTIPOLYGON
+
+--adapt table before importing into generic polygon table
+ALTER TABLE spt_admin1States10  ADD COLUMN layerId INTEGER;
+
+--Admin1 states is not selected 
+INSERT INTO tbl_layers  (layerName, geomCategoryId, selected, display )
+  SELECT 'admin1States10', categoryId, 0, 1 FROM ref_geometryCategories WHERE categoryName = 'polygon';
+INSERT INTO spt_polygons (  layerId, featureClass, name, mapColour, subRegion, labelX, labelY, wikiDataId, polygon )
+  SELECT 
+  ( SELECT layerId FROM tbl_layers WHERE layerName = 'admin1States10' ),
+    type_en  AS featureClass,
+    name AS name,
+    mapcolor9 AS mapColour,
+    admin AS subRegion,
+    longitude AS labelX,
+    latitude AS labelY,
+    wikidataid AS wikiDataId,
+    geometry AS polygon
+  FROM spt_admin1States10
+  WHERE length( name ) > 0; 
+
+--No longer need the imported table
+SELECT DropTable( 'main', 'spt_admin1States10' );

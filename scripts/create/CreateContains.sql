@@ -1,4 +1,4 @@
---Table to store polygons and points contained in polygons 
+--Table to store polygons and points contained in polygons  
 --along with some meta data used in lists 
 CREATE TABLE tbl_contains (
     polygonId INTEGER,

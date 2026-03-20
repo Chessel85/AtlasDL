@@ -5,6 +5,7 @@
 #include <QString>
 #include <sqlite3.h>
 
+
 class CDbManager : public QObject 
 {
     Q_OBJECT
@@ -18,16 +19,16 @@ public:
 public:
     QString getDatabaseName() const;
     bool createOpenDatabase(const QString& databaseName );
-    bool createApplicationTables(const QString& scriptsPath);
     bool readScriptFile(const QString& filename );
     bool executeSqlFile(const QString& scriptFilePath);
+    bool executeSqlString(const QString& scriptFilePath);
     sqlite3* getDbHandle() const;
     const char* errorMessage();
     QString getQueryFromScript(const QString& queryFilename);
 
 
 private:
-
+    bool loadShapefile(const QString& loadDetails);
 //Member variables
 private:
     QString m_databaseName;

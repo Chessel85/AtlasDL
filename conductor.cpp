@@ -58,6 +58,12 @@ bool CConductor::executeSchedule()
             qCInfo(ConductorProgress) << "Creating or opening database" << detail;
             result = m_DbManager->createOpenDatabase( detail);
         }
+        //read script file 
+        else if (action == "readScript")
+        {
+            qCInfo(ConductorProgress) << "Reading script file:" << detail;
+            result = m_DbManager->readScriptFile(detail);
+        }
         //Layer info 
         else if (action == "layerName" )
         {

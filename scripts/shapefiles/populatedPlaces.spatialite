@@ -1,0 +1,26 @@
+--Populated places
+.loadshp shpCultural/ne_10m_populated_places  spt_populatedPlaces10 UTF-8 4326 POINT
+
+
+--adapt table before importing into generic polygon or point table
+--Nothing to do 
+
+--Populated places do display 
+INSERT INTO tbl_layers  (layerName, geomCategoryId, selected, display )
+  SELECT 'populatedPlaces10', categoryId, 1, 1  FROM ref_geometryCategories WHERE categoryName = 'point';
+INSERT INTO spt_points (  layerId, featureClass, name, longitude, latitude, capital, minZoom, wikiDataId, pt )
+  SELECT 
+  ( SELECT layerId FROM tbl_layers WHERE layerName = 'populatedPlaces10' ),
+    featurecla AS featureClass,
+    name AS name,
+    longitude AS longitude,
+    latitude AS latitude,
+    adm0cap AS capital,
+    min_zoom AS minZoom,
+    wikidataid AS wikiDataId,
+    CastToPoint( geometry ) AS pt
+  FROM spt_populatedPlaces10
+  WHERE length( name ) > 0;
+
+--No longer need the imported table
+SELECT DropTable( 'main', 'spt_populatedPlaces10' );

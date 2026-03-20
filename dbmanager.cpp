@@ -91,6 +91,7 @@ bool CDbManager::createOpenDatabase(const QString& databaseName )
     }
 
     //Load spatialite extension 
+
     rc = sqlite3_load_extension(m_sqlite3db, "mod_spatialite", 0, 0);
     if (rc != SQLITE_OK) 
     {
@@ -120,8 +121,7 @@ bool CDbManager::createOpenDatabase(const QString& databaseName )
     }
 
     // Add application specific tables
-    //bool res = createApplicationTables("../scripts/create");
-    bool res = readScriptFile( "CreateBaseTables.txt" );
+    bool res = readScriptFile( "CreateBaseTables.spatialite" );
     if (!res )
     {
         qCCritical(DbManagerManagement) <<  "Failed to create application tables:" << zErrMsg;
@@ -130,12 +130,84 @@ bool CDbManager::createOpenDatabase(const QString& databaseName )
         m_sqlite3db = nullptr;
         return false;
     }
-    sqlite3_free(zErrMsg);
 
     qCInfo(DbManagerManagement) <<  "Successfully created spatialite database and tables.";
     return true;
 }
+bool CDbManager::readScriptFile(const QString&  filename )
+{
+    //Check health of database 
+    if (!m_sqlite3db)
+    {
+        qCCritical(DbManagerManagement) << "Database is not open.";
+        return false;
+    }
 
+    // Build full path for a script 
+    QString absolutePath = SCRIPTS_PATH + filename;
+
+    QFile file(absolutePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qCCritical(DbManagerManagement) << "Could not open file:" << absolutePath;
+        return false;
+    }
+
+    QTextStream in(&file);
+    QString sqlAccumulator;
+    bool success = true;
+
+    while (!in.atEnd())
+    {
+        QString line = in.readLine().trimmed();
+
+        // Skip comments and empty lines
+        if (line.isEmpty() || line.startsWith("--")) 
+        {
+            continue;
+        }
+
+        if (line.startsWith(".read"))
+        {
+            // 1. Handle recursive script reading
+            QString subFileName = line.section(' ', 1).trimmed();
+            if (!readScriptFile(subFileName)) 
+            {
+                success = false;
+            }
+        }
+        else if (line.startsWith(".load"))
+        {
+            // 2. Handle shapefile loading
+            QString shapefilePath = line.section(' ', 1).trimmed();
+            if (!loadShapefile(shapefilePath)) 
+            {
+                success = false;
+            }
+        }
+        else
+        {
+            // 3. Accumulate standard SQL lines
+            sqlAccumulator.append(line + "\n");
+        }
+    }
+    file.close();
+
+    // 4. Execute any accumulated SQL at the end of the file
+    if (success && !sqlAccumulator.trimmed().isEmpty())
+    {
+        if (!executeSqlString(sqlAccumulator)) 
+        {
+            qCCritical(DbManagerManagement) << "Failed to execute SQL block from:" << filename;
+            success = false;
+        }
+    }
+
+    return success;
+}
+
+
+/*
 bool CDbManager::readScriptFile(const QString& filename )
 {
     //Check database is okay 
@@ -192,61 +264,76 @@ bool CDbManager::readScriptFile(const QString& filename )
 
     masterFile.close();
     return allSuccess;
-}
+}*/
 
-bool CDbManager::createApplicationTables(const QString& scriptsPath)
+bool CDbManager::loadShapefile(const QString& commandArgs)
 {
-    if (!m_sqlite3db) 
+    // Expected args: "shpPath tableName charset srid  geomType"
+    QStringList args = commandArgs.split(' ', Qt::SkipEmptyParts);
+
+    if (args.size() < 5)
     {
-        qCCritical(DbManagerManagement) << "Database is not open. Cannot execute scripts.";
+        qCCritical(DbManagerManagement) << "Insufficient arguments for virtual load. Expected 5:" << commandArgs;
         return false;
     }
 
-    QDir scriptsDir(QCoreApplication::applicationDirPath() + QDir::separator() + scriptsPath);
-    if (!scriptsDir.exists()) 
+    QString basePath = SHAPEFILES_PATH + args.at(0);
+    QString tableName = args.at(1);
+    QString charset = args.at(2);
+    QString srid = args.at(3);
+    QString geomType = args.at(4).toUpper(); // e.g., 'POLYGON', 'POINT'
+
+    //Check file with .shp added exists 
+    if (!QFile::exists(basePath+ ".shp"))
     {
-        qCCritical( DbManagerManagement) << "Script directory does not exist:" << scriptsDir.path();
+        qCCritical(DbManagerManagement) << "Shapefile not found at:" << basePath+ ".shp";
         return false;
     }
 
-    QStringList filters;
-    filters << "*.sql";
-    QFileInfoList fileList = scriptsDir.entryInfoList(filters, QDir::Files);
+    // use a unique name for the virtual link to avoid collisions
+    QString virtualTab = "vrt_" + tableName;
 
-    if (fileList.isEmpty()) 
+    // Sequence of SQL commands to perform the import
+    QStringList sqlCommands;
+
+    // 1. Create the virtual link to the physical files (.shp, .dbf, .shx)
+    sqlCommands << QString("CREATE VIRTUAL TABLE %1 USING VirtualShape('%2', '%3', %4);")
+        .arg(virtualTab, basePath, charset, srid);
+
+    // 2. Transfer data into a permanent table
+    // Note: VirtualShape always names the geometry column "Geometry"
+    sqlCommands << QString("CREATE TABLE %1 AS SELECT * FROM %2;")
+        .arg(tableName, virtualTab);
+
+    // 3. Drop the virtual link (does not delete the source files)
+    sqlCommands << QString("DROP TABLE %1;").arg(virtualTab);
+
+    // 4. Register the geometry column in spatial_ref_sys / geometry_columns
+    // RecoverGeometryColumn(table, column, srid, geom_type, dimension)
+    sqlCommands << QString("SELECT RecoverGeometryColumn('%1', 'Geometry', %2, '%3', 'XY');")
+        .arg(tableName, srid, geomType);
+
+    qCInfo(DbManagerManagement) << "Importing Shapefile via Virtual Table:" << basePath;
+
+    char* zErrMsg = nullptr;
+    for (const QString& sql : sqlCommands)
     {
-        qCCritical( DbManagerManagement) << "No SQL files found in the directory:" << scriptsDir.path();
-        return false;
-    }
+        int rc = sqlite3_exec(m_sqlite3db, sql.toUtf8().constData(), nullptr, nullptr, &zErrMsg);
 
-    qCInfo(DbManagerManagement) << "Creating application tables with" << fileList.count() << "SQL scripts from" << scriptsDir.path();
-
-    bool success = true;
-    for (const QFileInfo& fileInfo : fileList) 
-    {
-            QFile file(fileInfo.absoluteFilePath());
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) 
+        if (rc != SQLITE_OK)
         {
-            qCCritical(DbManagerManagement) << "Could not open SQL file:" << fileInfo.fileName();
-            success = false;
-            continue;
-        }
+            qCCritical(DbManagerManagement) << "SQL Error during Virtual Import:" << zErrMsg;
+            qCCritical(DbManagerManagement) << "Failed Statement:" << sql;
 
-        QTextStream in(&file);
-        QString sqlStatement = in.readAll();
-        file.close();
+            // Critical: If step 1 or 2 fails, we should still try to drop the virtual table
+            sqlite3_exec(m_sqlite3db, QString("DROP TABLE IF EXISTS %1;").arg(virtualTab).toUtf8().constData(), nullptr, nullptr, nullptr);
 
-        char* zErrMsg = nullptr;
-        int rc = sqlite3_exec(m_sqlite3db, sqlStatement.toUtf8().constData(), nullptr, nullptr, &zErrMsg);
-        if (rc != SQLITE_OK) 
-        {
-            qCWarning( DbManagerManagement) << "Failed to execute SQL from" << fileInfo.fileName() << ":" << zErrMsg;
             sqlite3_free(zErrMsg);
-            success = false;
+            return false;
         }
     }
 
-    return success;
+    return true;
 }
 
 bool CDbManager::executeSqlFile(const QString& scriptFilePath)
@@ -284,18 +371,19 @@ bool CDbManager::executeSqlFile(const QString& scriptFilePath)
 
     qCInfo(DbManagerManagement) << "Executing SQL script from:" << absolutePath;
 
-    // 5. Execute SQL using sqlite3_exec
-    char* zErrMsg = nullptr;
-    // Use .constData() on the UTF-8 converted QString for sqlite3_exec
-    int rc = sqlite3_exec(m_sqlite3db, sqlStatement.toUtf8().constData(), nullptr, nullptr, &zErrMsg);
+    return executeSqlString(sqlStatement);;
+}
 
+bool CDbManager::executeSqlString(const QString& sql)
+{
+    char* zErrMsg = nullptr;
+    int rc = sqlite3_exec(m_sqlite3db, sql.toUtf8().constData(), nullptr, nullptr, &zErrMsg);
     if (rc != SQLITE_OK)
     {
-        qCWarning(DbManagerManagement) << "Failed to execute SQL from" << absolutePath << ":" << zErrMsg;
+        qCWarning(DbManagerManagement) << "SQL Error:" << zErrMsg;
         sqlite3_free(zErrMsg);
         return false;
     }
-
     return true;
 }
 

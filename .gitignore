@@ -33,6 +33,7 @@ Desktop.ini
 #project files
 /data/
 /files/
+/shapefiles/
 /logs/
 CMake run.txt
 atlas.log
