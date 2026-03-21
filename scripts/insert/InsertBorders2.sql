@@ -8,7 +8,7 @@ INSERT INTO tbl_borders (polygon1Id, polygon2Id, name1, name2)
   FROM spt_polygons AS a
   JOIN spt_polygons AS b ON a.layerId = b.layerId -- Only compare within the same layer
   WHERE a.ROWID != b.ROWID                       -- Don't compare a polygon to itself
-  AND ( a.layerId=4 AND b.layerId = 4 )
+  AND ( a.layerId=2 AND b.layerId = 2 )
   AND b.ROWID IN (                             
       SELECT rowid FROM SpatialIndex 
       WHERE f_table_name = 'spt_polygons' 

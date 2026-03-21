@@ -7,8 +7,8 @@
 .read update/UpdatePolygonAreas.sql
 
 --Populate borders 
+.read insert/InsertBorders2.sql
 .read insert/InsertBorders3.sql
-.read insert/InsertBorders4.sql
 
 --populate contains table
 .read insert/InsertContainsPolygons.sql

@@ -38,7 +38,7 @@ private:
     bool DownloadAndprocessWays();
     bool ProcessFromFile( const QString& filename );
     //CNode* getNode(quint64 nodeId, double longitude, double latitude, NodeMap& nodesMaster);
-    bool assignColourIndex();
+    bool assignColourIndex(const QString& sLayerId );
     void clearFilters();
     bool ifDoingCountryLayer();
     bool ifDoingIslandLayer();

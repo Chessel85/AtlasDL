@@ -217,10 +217,10 @@ result =             m_geodeskReader.addExclusion(detail);
             bool maritime = ( detail == "maritime" ) ? true : false;
             result = m_spatial->identifyBorders(maritime );
         }
-        else if (action == "setColours" and detail == "yes" )
+        else if (action == "setPolygonColours"  )
         {
-            qCInfo(ConductorProgress) << "Assigning a colour index to each relation.";;
-            result = assignColourIndex();
+            qCInfo(ConductorProgress) << "Assigning a colour index to polygons in layer" << detail;;
+            result = assignColourIndex(detail) ;
         }
         else if (action == "updatePolygonsWithLayersAndColours" && detail == "yes" )
         {
@@ -464,18 +464,19 @@ void CConductor::deleteMasters()
         delete node;
     }
     m_nodesMaster.clear();
-}
+    }
 
-bool CConductor::assignColourIndex()
+bool CConductor::assignColourIndex(const QString& sLayerId)
 {
-    // Create a QProcess object
+    // Create a QProcess object to run the python sript 
     QProcess process;
 
     // Set up the command to run 
     QString program = "python";
     QStringList arguments;
-    arguments << "python/ColourBorderingCountries.py"; 
+    arguments << PYTHON_PATH"colourFromBorders.py";
     arguments << m_DbManager->getDatabaseName();
+    arguments << sLayerId;
 
     // Start the process
     process.start(program, arguments);

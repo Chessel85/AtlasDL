@@ -3,3 +3,7 @@ database=land.db
 
 //Load base map layers from Natural Earth  10 
 readScript=importShapefiles.spatialite
+
+//Set the colour index for the two countrey and state layers 
+setPolygonColours=2
+setPolygonColours=3

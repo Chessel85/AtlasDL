@@ -40,7 +40,7 @@ const QStringList CSchedule::m_validKeys =
     "preprocessLinks-borders",
     "identifyBorders",
     "deriveCountryPolygons",
-    "setColours",
+    "setPolygonColours",
     "updatePolygonsWithLayersAndColours",
     "islandsFilter",
     "file"
