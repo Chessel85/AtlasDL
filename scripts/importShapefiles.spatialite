@@ -4,6 +4,7 @@
 .read shapefiles/admin1.spatialite
 .read shapefiles/lakes.spatialite
 .read shapefiles/populatedPlaces.spatialite
+.read update/UpdatePolygonBoundingBox.sql
 .read update/UpdatePolygonAreas.sql
 
 --Populate borders 
