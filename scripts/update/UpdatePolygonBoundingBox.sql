@@ -6,10 +6,9 @@ UPDATE spt_polygons
     maxX = MbrMaxX( polygon ),
     maxY = MbrMaxY( polygon );
 
---Second sweep coping with polygons spanning the antimeridian antimeridian 
--- Second sweep: Correcting countries that span the Antimeridian
+--Second sweep coping with polygons spanning the antimeridian 
 UPDATE spt_polygons
   SET 
-    minX = MbrMinX(ST_Shift_Longitude(polygon)),
-    maxX = MbrMaxX(ST_Shift_Longitude(polygon)) 
-  WHERE ABS(maxX - minX) > 300;
+    minX = MbrMinX( ST_Shift_Longitude( polygon ) ),
+    maxX = MbrMaxX( ST_Shift_Longitude( polygon ) ) 
+  WHERE ABS( maxX  - minX ) > 300;
