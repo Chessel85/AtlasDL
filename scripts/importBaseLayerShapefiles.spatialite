@@ -1,15 +1,24 @@
 --import following shapefiles
+.read Insert/InsertBaseLayerGroups.sql
 .read shapefiles/oceans.spatialite 
+.read shapefiles/geographyRegions.spatialite
 .read shapefiles/admin0.spatialite
 .read shapefiles/admin1.spatialite
 .read shapefiles/lakes.spatialite
 .read shapefiles/populatedPlaces.spatialite
+
+--Extract bounding boxes that cross the antimeridian based on polygons which is needed for outline view 
 .read update/UpdatePolygonBoundingBox.sql
+
+--Calculate area of each polygon 
 .read update/UpdatePolygonAreas.sql
 
 --Populate borders 
-.read insert/InsertBorders2.sql
-.read insert/InsertBorders3.sql
+--Though need a better way of handling layers  than quoting numbers 
+-- .read insert/InsertBorders2.sql
+-- .read insert/InsertBorders3.sql
+.read insert/InsertBordersAllLayers.sql
+
 
 --populate contains table
 .read insert/InsertContainsPolygons.sql

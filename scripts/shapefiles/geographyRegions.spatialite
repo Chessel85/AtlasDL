@@ -1,0 +1,30 @@
+--Import geography regions 
+.loadshp  shpPhysical/ne_10m_geography_regions_polys  spt_geographyRegions10 UTF-8 4326 MULTIPOLYGON
+
+--adapt table before importing into generic polygon table
+ALTER TABLE spt_geographyRegions10  ADD COLUMN layerId INTEGER;
+
+--Add layer geography regions - political layer group, not selected, is displayable and is made of polygons 
+INSERT INTO tbl_layers  (layerGroupId, layerName, geomCategoryId, selected, display )
+  SELECT 
+    ( SELECT layerGroupId FROM tbl_layerGroups WHERE layerGroupName = 'Political' ),
+    'Geography Regions', 
+    ( SELECT categoryId FROM ref_geometryCategories WHERE categoryName = 'polygon' ),
+    0, 1;
+
+--Add data into polygon table 
+INSERT INTO spt_polygons (  layerId, featureClass, name, mapColour, subRegion, labelX, labelY, wikiDataId, polygon )
+  SELECT 
+  ( SELECT layerId FROM tbl_layers WHERE layerName = 'Geography Regions' ),
+    featurecla AS featureClass,
+    name_en AS name,
+    -1 AS mapColour,
+    subregion AS subRegion,
+    X ( ST_Centroid( geometry ) ) AS labelX,
+    Y( ST_Centroid( geometry  ) )  AS labelY,
+    wikidataid AS wikiDataId,
+    geometry AS polygon
+  FROM spt_geographyRegions10; 
+
+--No longer need the imported table
+SELECT DropTable( 'main', 'spt_geographyRegions10' );

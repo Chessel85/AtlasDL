@@ -4,12 +4,18 @@
 --adapt table before importing into generic polygon table
 ALTER TABLE spt_admin1States10  ADD COLUMN layerId INTEGER;
 
---Admin1 states is not selected 
-INSERT INTO tbl_layers  (layerName, geomCategoryId, selected, display )
-  SELECT 'admin1States10', categoryId, 0, 1 FROM ref_geometryCategories WHERE categoryName = 'polygon';
+--Add layer Admin1 states is not selected, is displayable 
+INSERT INTO tbl_layers  (layerGroupId, layerName, geomCategoryId, selected, display )
+  SELECT 
+    ( SELECT layerGroupId FROM tbl_layerGroups WHERE layerGroupName = 'Political' ),
+    'Admin level 1 (States, Provinces )', 
+    ( SELECT categoryId FROM ref_geometryCategories WHERE categoryName = 'polygon' ),
+    0, 1;
+
+--Add data into polygon table 
 INSERT INTO spt_polygons (  layerId, featureClass, name, mapColour, subRegion, labelX, labelY, wikiDataId, polygon )
   SELECT 
-  ( SELECT layerId FROM tbl_layers WHERE layerName = 'admin1States10' ),
+  ( SELECT layerId FROM tbl_layers WHERE layerName = 'Admin level 1 (States, Provinces )' ),
     type_en  AS featureClass,
     name AS name,
     mapcolor9 AS mapColour,

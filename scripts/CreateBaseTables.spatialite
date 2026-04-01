@@ -1,6 +1,11 @@
 --Create tables
 .read create/CreateGeomCategories.sql
+.read create/CreateLayerGroups.sql
+
+
 .read create/CreateLayers.sql
+
+
 .read create/CreatePolygons.sql
 .read create/CreatePoints.sql
 .read create/CreateBorders.sql

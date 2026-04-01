@@ -4,12 +4,20 @@
 --adapt table before importing into generic polygon table
 ALTER TABLE spt_admin0Countries10  ADD COLUMN layerId INTEGER;
 
---Admin0 Countries  do display 
-INSERT INTO tbl_layers  (layerName, geomCategoryId, selected, display )
-  SELECT 'admin0Countries10', categoryId, 1, 1 FROM ref_geometryCategories WHERE categoryName = 'polygon';
+--Add Admin0 layer is selected and - do display 
+INSERT INTO tbl_layers  (layerGroupId, layerName, geomCategoryId, selected, display )
+  SELECT 
+    ( SELECT layerGroupId FROM tbl_layerGroups WHERE layerGroupName = 'Political' ),
+    'Countries', 
+    ( SELECT categoryId FROM ref_geometryCategories WHERE categoryName = 'polygon' ),
+    1, 1;
+
+
+
+--Add polygon data 
 INSERT INTO spt_polygons (  layerId, featureClass, name, mapColour, subRegion, labelX, labelY, wikiDataId, polygon )
   SELECT 
-  ( SELECT layerId FROM tbl_layers WHERE layerName = 'admin0Countries10' ),
+  ( SELECT layerId FROM tbl_layers WHERE layerName = 'Countries' ),
     featurecla AS featureClass,
     name_long AS name,
     mapcolor7 AS mapColour,

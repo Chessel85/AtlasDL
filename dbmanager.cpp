@@ -143,6 +143,9 @@ bool CDbManager::readScriptFile(const QString&  filename )
         return false;
     }
 
+    if (filename.contains("Contain"))
+        int k = 0;
+
     // Build full path for a script 
     QString absolutePath = SCRIPTS_PATH + filename;
 
@@ -153,11 +156,14 @@ bool CDbManager::readScriptFile(const QString&  filename )
         return false;
     }
 
+
+    //Start processing the file
+    qCInfo(DbManagerManagement) << "Reading script" << filename;
     QTextStream in(&file);
     QString sqlAccumulator;
     bool success = true;
 
-    while (!in.atEnd())
+    while (!in.atEnd() && success )
     {
         QString line = in.readLine().trimmed();
 
@@ -173,6 +179,7 @@ bool CDbManager::readScriptFile(const QString&  filename )
             QString subFileName = line.section(' ', 1).trimmed();
             if (!readScriptFile(subFileName)) 
             {
+                qCCritical(DbManagerManagement) << "Failed to read script" << subFileName;
                 success = false;
             }
         }
@@ -182,6 +189,7 @@ bool CDbManager::readScriptFile(const QString&  filename )
             QString shapefilePath = line.section(' ', 1).trimmed();
             if (!loadShapefile(shapefilePath)) 
             {
+                QString shapefilePath = line.section(' ', 1).trimmed();
                 success = false;
             }
         }
