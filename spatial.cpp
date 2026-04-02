@@ -210,6 +210,33 @@ bool CSpatial::InsertLayer(const QString& layerName, int geometryId )
     return true;
 }
 
+bool CSpatial::identifyBordersInDifferentLayers(int layerId1, int layerId2)
+{
+    //Prepare for the SQLite call 
+
+    sqlite3_stmt* stmt = prepareQueryFromFile("insert/InsertBordersBetweenDifferentLayers.sql");
+    if (!stmt)
+        return false;
+
+    // Bind parameters 
+    bool ok = bindInt(stmt, 1, layerId1);
+    if (!ok)
+        return false;
+    ok = bindInt(stmt, 2, layerId2);
+    if (!ok)
+        return false;
+
+    // Execute the query tolerating it might already exist 
+    ok = executeStatement(stmt, true);
+    if (!ok)
+    {
+        qCWarning(spatialManagement) << "Inserting borders betwee layerId" << layerId1 << "and layerId" << layerId2 << "failed.";
+        return false;
+    }
+
+    return true;
+}
+
 bool CSpatial::readLayerNames( CLayers& layerNames )
 {
         //Prepare for the SQLite call 
@@ -756,15 +783,42 @@ bool CSpatial::insertLayerPolygon( int polygonId, int layerId  )
     return true;
 }
 
-bool CSpatial::identifyBorders(bool maritime)
+bool CSpatial::identifyBordersInSameLayers()
 {
-    //Two different queries for maritime and non-maritime borders 
-    if (maritime)
-        return true;
+    bool ok = m_DbManager ->executeSqlFile( "insert/InsertBordersAllLayers.sql" );
 
-    bool ok = m_DbManager ->executeSqlFile( "scripts/insert/InsertBorderingRelations.sql" );
-    if( !ok)
+    return ok;
+}
+
+bool CSpatial::getLayerId(const QString& groupName, const QString& layerName, int& layerId )
+{
+    //Prepare for the SQLite call 
+    sqlite3_stmt* stmt = prepareQueryFromFile("Select/SelectLayerId.sql");
+    if (!stmt)
         return false;
+
+    //Bind data
+    QByteArray utf8GroupName;
+    bool ok = bindText(stmt, 1, groupName, utf8GroupName);
+    if (!ok)
+        return false;
+    QByteArray utf8LayerName;
+    ok = bindText(stmt, 2, layerName, utf8LayerName);
+    if (!ok)
+        return false;
+
+    // Execute the query
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+    {
+        layerId = sqlite3_column_int(stmt, 0);
+    }
+    if (rc != SQLITE_DONE)
+    {
+        qCCritical(spatialManagement) << "Error getting layer id.";
+        sqlite3_finalize(stmt);
+        return false;
+    }
 
     return true;
 }
@@ -1416,7 +1470,7 @@ sqlite3_stmt* CSpatial::prepareQuery(const QString& query )
 
 sqlite3_stmt* CSpatial::prepareQueryFromFile(const QString& filename, QString values1, QString values2 )
 {
-    QString query = m_DbManager->getQueryFromScript("scripts/" + filename);
+    QString query = m_DbManager->getQueryFromScript( filename);
     if (query == "")
     {
         qCCritical(spatialManagement) << "Unable to load query from" << filename;

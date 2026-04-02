@@ -43,6 +43,7 @@ private:
     bool ifDoingCountryLayer();
     bool ifDoingIslandLayer();
     bool simplifyWaysAndPolygons();
+    bool identifyBorders(QString& layersInfo);
 
 //Member variables
 private:

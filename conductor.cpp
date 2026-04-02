@@ -213,9 +213,8 @@ result =             m_geodeskReader.addExclusion(detail);
             }
         else if (action == "identifyBorders" )
         {
-            qCInfo(ConductorProgress) << "Identifying bordering relations";
-            bool maritime = ( detail == "maritime" ) ? true : false;
-            result = m_spatial->identifyBorders(maritime );
+            qCInfo(ConductorProgress) << "Identifying bordering polygons:" << detail;
+            result = identifyBorders(detail );
         }
         else if (action == "setPolygonColours"  )
         {
@@ -549,3 +548,50 @@ bool CConductor::simplifyWaysAndPolygons()
 
         return true;
     }
+
+bool CConductor::identifyBorders(QString& layersInfo)
+{
+    //Check if is for polygons in the same layer
+    bool ok = false;
+    if (layersInfo == "selfLayers")
+    {
+        qCInfo(ConductorProgress) << "Identifying borders between polygons in the same layer as each other.";
+        ok = m_spatial->identifyBordersInSameLayers();
+    }
+    else if(layersInfo.contains( '|' ) )
+    {
+        QStringList parts = layersInfo.split('|');
+        if (parts.size() == 2) 
+        {
+            QString path1 = parts[0]; 
+            QString path2 = parts[1]; 
+
+            // Now split each path to get Group and Layer names
+            QStringList layer1 = path1.split('/');
+            QStringList layer2 = path2.split('/');
+
+            if (layer1.size() == 2 && layer2.size() == 2)
+            {
+                QString group1 = layer1[0];
+                QString name1 = layer1[1];
+                QString group2 = layer2[0];
+                QString name2 = layer2[1];
+
+                int layerId1, layerId2;
+                ok = m_spatial->getLayerId(group1, name1, layerId1 );
+                if (ok)
+                    ok = m_spatial->getLayerId(group2, name2, layerId2 );
+
+                if (ok)
+                    ok = m_spatial->identifyBordersInDifferentLayers(layerId1, layerId2);
+
+                qCInfo(ConductorProgress) << "Identifying borders for layers" << layerId1 << "and" << layerId2;
+            }
+        }
+    }
+
+    if (!ok)
+        qCCritical(ConductorProgress) << "Failed to identify borders.";
+
+    return ok;
+}

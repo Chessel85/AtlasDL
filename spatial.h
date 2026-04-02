@@ -37,6 +37,7 @@ public:
     bool selectGeometryId(const QString& layerGeometry, int& geometryId); 
     bool selectSimplifiedWayList(int polygonId, const QString& simplificationColumn, QList<SimplifiedWayEntry>& simplifiedWayList);
     bool InsertLayer(const QString& layerName, int geometryId );
+    bool identifyBordersInDifferentLayers(int layerId1, int layerId2);
     bool readLayerNames(CLayers& layers);
     bool insertWays(CRelation* relation );
     bool insertPolygonData(quint64 relationId, int layerId, QString& wayIdsAsText, QString& wayListAsText );
@@ -47,7 +48,8 @@ public:
     bool preprocessLinksContains();
     bool preprocessLinksBorders();
     bool insertWays( WayMap& ways, int layerId );
-    bool identifyBorders(bool maritime);
+    bool identifyBordersInSameLayers();
+    bool getLayerId(const QString& groupName, const QString& layerName, int& layerId );
     bool  getUnsharedWaysInsideCountry(int countryId, QList<WayEntry>& wayList);
     bool  getCoastlineWaysInsidePolygon(int polygonId, QList<WayEntry>& coastlineWays, int coastlineLayerId);
     bool getPolygonWayList(int polygonId, QList<PolygonWayEntry>& polygonWayList );

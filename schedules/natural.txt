@@ -4,6 +4,12 @@ database=land.db
 //Load base map layers from Natural Earth  10 
 readScript=importBaseLayerShapefiles.spatialite
 
+//Derive borders for polygons of same layer  and between the land and ocean polygons
+identifyBorders=selfLayers
+identifyBorders=Political/Countries|Oceans and seas/Oceans and seas
+identifyBorders=Political/Admin level 1 (States, Provinces )|Oceans and seas/Oceans and seas
+
 //Set the colour index for the two countrey and state layers 
-setPolygonColours=2
-setPolygonColours=3
+setPolygonColours=Political/Geography Regions
+setPolygonColours=Political/Countries
+setPolygonColours=Political/Admin level 1 (States, Provinces )

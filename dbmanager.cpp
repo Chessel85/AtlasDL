@@ -410,7 +410,8 @@ const char* CDbManager::errorMessage()
 
 QString CDbManager::getQueryFromScript(const QString& queryFilename)
 {
-    QFile file(queryFilename);
+    QString  fullFilename = SCRIPTS_PATH + queryFilename;
+    QFile file(fullFilename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         // Handle error if file cannot be opened.

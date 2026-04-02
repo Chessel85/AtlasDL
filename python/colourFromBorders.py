@@ -10,14 +10,32 @@ def main():
         sys.exit(1)
 
     DATABASE_FILE = sys.argv[1]
-    LAYER_ID = sys.argv[2]
+    LAYER_PATH = sys.argv[2] # Expecting "GroupName/LayerName"
+    if '/' not in LAYER_PATH:
+        print("Error: Layer must be in 'GroupName/LayerName' format.")
+        sys.exit(1)
+    group_name, layer_name = LAYER_PATH.split('/')
 
     conn = None
     try:
         conn = sqlite3.connect(DATABASE_FILE)
         cursor = conn.cursor()
 
-        print(f"Connected to: {DATABASE_FILE} | Processing Layer: {LAYER_ID}")
+        # Resolve Layer Path to Layer ID
+        cursor.execute("""
+            SELECT l.layerId 
+            FROM tbl_layers l
+            JOIN tbl_layerGroups lg ON l.layerGroupId = lg.layerGroupId
+            WHERE lg.layerGroupName = ? AND l.layerName = ?
+            """, (group_name, layer_name))
+
+        row = cursor.fetchone()
+        if not row:
+            print(f"Error: Could not find layer '{layer_name}' in group '{group_name}'.")
+            sys.exit(1)
+            
+        LAYER_ID = row[0]
+        print(f"Connected to: {DATABASE_FILE} | Processing: {LAYER_PATH} (ID: {LAYER_ID})")
 
         # 1. Fetch all polygon IDs for the specific layer
         # This ensures islands (polygons with no borders) are included

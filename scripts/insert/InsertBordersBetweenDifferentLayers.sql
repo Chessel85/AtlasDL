@@ -1,4 +1,4 @@
---Populate borders table with intersecting polygons from the same layer  for each polygon layer 
+--Populate borders table with intersecting polygons from different layers 
 INSERT INTO tbl_borders (polygon1Id, polygon2Id, name1, name2)
   SELECT 
     a.rowid, 
@@ -6,7 +6,11 @@ INSERT INTO tbl_borders (polygon1Id, polygon2Id, name1, name2)
     a.name, 
     b.name
   FROM spt_polygons AS a
-  JOIN spt_polygons AS b ON a.layerId = b.layerId -- Only compare within the same layer
+  JOIN spt_polygons AS b ON 
+    (
+      ( a.layerId = :layer1 AND b.layerId = :layer2 )  
+      OR  ( a.layerId = :layer2 AND b.layerId = :layer1 )
+    )
   WHERE a.ROWID != b.ROWID                       -- Don't compare a polygon to itself
   AND b.ROWID IN (                             
       SELECT rowid FROM SpatialIndex 

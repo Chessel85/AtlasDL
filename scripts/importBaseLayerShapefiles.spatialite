@@ -14,10 +14,7 @@
 .read update/UpdatePolygonAreas.sql
 
 --Populate borders 
---Though need a better way of handling layers  than quoting numbers 
--- .read insert/InsertBorders2.sql
--- .read insert/InsertBorders3.sql
-.read insert/InsertBordersAllLayers.sql
+--.read insert/InsertBordersAllLayers.sql
 
 
 --populate contains table
