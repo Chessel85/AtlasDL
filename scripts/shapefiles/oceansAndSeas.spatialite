@@ -1,4 +1,4 @@
---Load Shapefiles for Major oceans and seas
+--Load Shapefiles for oceans and seas
 .loadshp  shpPhysical/ne_10m_geography_marine_polys  spt_marinePolys10  UTF-8 4326 MULTIPOLYGON
 
 --Adapt tables before loading data into generic polygon and point tables 
@@ -16,7 +16,7 @@ INSERT INTO tbl_layers  (layerGroupId, layerName, geomCategoryId, selected, disp
     ( SELECT layerGroupId FROM tbl_layerGroups WHERE layerGroupName = 'Oceans and seas' ),
     'Oceans and seas', 
     ( SELECT categoryId FROM ref_geometryCategories WHERE categoryName = 'polygon' ),
-    1, 1;
+    0, 1;
 
 --Add data into polygon table 
 INSERT INTO spt_polygons (  layerId, featureClass, name, mapColour, subRegion, labelX, labelY, wikiDataId, polygon )

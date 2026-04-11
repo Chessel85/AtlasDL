@@ -1,6 +1,7 @@
 --import following shapefiles
 .read Insert/InsertBaseLayerGroups.sql
-.read shapefiles/oceans.spatialite 
+.read shapefiles/majorOceans.spatialite 
+.read shapefiles/oceansAndSeas.spatialite 
 .read shapefiles/geographyRegions.spatialite
 .read shapefiles/admin0.spatialite
 .read shapefiles/admin1.spatialite
@@ -12,9 +13,8 @@
 
 --Calculate area of each polygon 
 .read update/UpdatePolygonAreas.sql
+.read update/UpdatePolygonMinZoomLevels.sql
 
---Populate borders 
---.read insert/InsertBordersAllLayers.sql
 
 
 --populate contains table

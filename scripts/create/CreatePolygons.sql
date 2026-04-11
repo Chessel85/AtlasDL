@@ -5,6 +5,7 @@ CREATE TABLE spt_polygons (
     featureClass TEXT,
     name TEXT,
     area DOUBLE,
+    minZoomLevel DOUBLE DEFAULT NULL,
     mapColour INTEGER,
     subRegion TEXT,
     minX DOUBLE DEFAULT NULL,
@@ -13,6 +14,7 @@ CREATE TABLE spt_polygons (
     maxY DOUBLE DEFAULT NULL,
     labelX DOUBLE,
     labelY DOUBLE,
+    minLabelZoomLevel DOUBLE DEFAULT NULL,
     wikiDataId TEXT,
     FOREIGN KEY (layerId) REFERENCES tbl_layers( layerId )
 );

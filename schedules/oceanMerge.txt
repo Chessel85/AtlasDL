@@ -1,0 +1,6 @@
+//Defines the steps for creating base country data for AtMap 
+database=seas.db
+
+//Load natural earth seas and IHO major oceans 
+readScript=importSeas.spatialite
+

@@ -1,0 +1,9 @@
+--import following shapefiles
+--.read Insert/InsertBaseLayerGroups.sql
+--This loads both the natural earth oceans and seas shapefile plus the IHO high res oceans shapefile 
+.read shapefiles/Goas_v01.spatialite 
+
+--This then does a bunch of processing to generate a low res shapefile though it does require a manual step at the end to export the shapefile which I could not be bothered to code 
+--.read shapefiles/oceansMore.spatialite 
+
+

@@ -4,7 +4,7 @@
 --adapt table before importing into generic polygon or point table
 --Nothing to do 
 
---Add layer cities - populated places layer group, selected, is displayable and is made of polygons 
+--Add layer cities - populated places layer group, selected, is displayable and is made of points
 INSERT INTO tbl_layers  (layerGroupId, layerName, geomCategoryId, selected, display )
   SELECT 
     ( SELECT layerGroupId FROM tbl_layerGroups WHERE layerGroupName = 'Populated places' ),
@@ -13,14 +13,13 @@ INSERT INTO tbl_layers  (layerGroupId, layerName, geomCategoryId, selected, disp
     1, 1;
 
 --Add data into point table 
-INSERT INTO spt_points (  layerId, featureClass, name, longitude, latitude, capital, minZoom, wikiDataId, pt )
+INSERT INTO spt_points (  layerId, featureClass, name, longitude, latitude, minZoom, wikiDataId, pt )
   SELECT 
   ( SELECT layerId FROM tbl_layers WHERE layerName = 'Cities' ),
     featurecla AS featureClass,
     name AS name,
     longitude AS longitude,
     latitude AS latitude,
-    adm0cap AS capital,
     min_zoom AS minZoom,
     wikidataid AS wikiDataId,
     CastToPoint( geometry ) AS pt

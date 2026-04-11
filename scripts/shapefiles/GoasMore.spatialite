@@ -1,0 +1,68 @@
+--Add additional columns to majorOceans table
+ALTER TABLE spt_majorOceanPolys ADD COLUMN layerId INTEGER;
+ALTER TABLE spt_majorOceanPolys ADD COLUMN centroidX DOUBLE;
+ALTER TABLE spt_majorOceanPolys ADD COLUMN centroidY DOUBLE;
+ALTER TABLE spt_majorOceanPolys ADD COLUMN parentOceanId INTEGER;
+
+
+--Rank intersections of seas with ocean polygons and then set the largest overlap as the parent ocean for the sea
+WITH RankedOceans AS (
+    SELECT 
+        s.pkuid AS sea_id,
+        o.pkuid AS ocean_id,
+        ROW_NUMBER() OVER (
+            PARTITION BY s.pkuid 
+            ORDER BY ST_Area(ST_Transform(ST_Intersection(s.geometry, o.geometry), 3857)) DESC
+        ) AS rank
+    FROM spt_marinePolys10 AS s
+    JOIN spt_majorOceanPolys AS o ON ST_Intersects(s.geometry, o.geometry)
+  )
+  UPDATE spt_marinePolys10
+  SET parentOceanId = (
+    SELECT ocean_id 
+    FROM RankedOceans 
+    WHERE RankedOceans.sea_id = spt_marinePolys10.pkuid 
+    AND rank = 1
+  )
+  WHERE EXISTS (
+    SELECT 1 FROM RankedOceans WHERE sea_id = spt_marinePolys10.pkuid
+);
+
+--Need a layer for oceans 
+--Add layer Oceans - layer group Oceans and Seas, not selected, is displayable and is made of polygons 
+INSERT INTO tbl_layers  (layerGroupId, layerName, geomCategoryId, selected, display )
+  SELECT 
+    ( SELECT layerGroupId FROM tbl_layerGroups WHERE layerGroupName = 'Oceans and seas' ),
+    'Oceans', 
+    ( SELECT categoryId FROM ref_geometryCategories WHERE categoryName = 'polygon' ),
+    0, 1;
+
+--Merge the sea polygons with the same parent ocean and insert into a new table 
+-- INSERT INTO spt_polygons (  layerId, featureClass, name, mapColour, subRegion, labelX, labelY, wikiDataId, polygon )
+CREATE TABLE spt_lowResOceans  AS
+  SELECT 
+    ( SELECT layerId FROM tbl_layers WHERE layerName = 'Oceans' ) AS layerId,
+    'Ocean' AS featureClass,
+    o.name AS name,
+    -1 AS mapColour,
+    'ocean'AS subRegion,
+    X( ST_Centroid( ST_Union(s.geometry) ) ) AS midX,
+    Y( ST_Centroid( ST_Union(s.geometry) ) ) AS midY,
+    null AS wikiDataId,
+    CastToMultiPolygon( ST_Union(s.geometry) ) AS polygon
+  FROM spt_marinePolys10 AS s 
+  JOIN spt_majorOceanPolys AS o ON o.pkuid = s.parentOceanId 
+  WHERE s.parentOceanId IS NOT NULL
+  GROUP BY s.parentOceanId;
+
+--Recover geometry 
+SELECT RecoverGeometryColumn('spt_lowResOceans', 'polygon', 4326, 'MULTIPOLYGON', 'XY');
+
+--Export a shapefile
+--First must have run following before opening spatialite: set SPATIALITE_SECURITY=relaxed
+SELECT ExportSHP( 'spt_lowResOceans',  'polygon', 'lowResOceans/lowResOceans', 'UTF-8' );
+
+--Drop the tables as no longer needed
+SELECT DropTable( 'main', 'spt_marinePolys10' );
+SELECT DropTable( 'main', 'spt_majorOceanPolys' );
+

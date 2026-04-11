@@ -6,8 +6,7 @@ CREATE TABLE spt_points (
     name TEXT,
     longitude DOUBLE,
     latitude DOUBLE,
-    capital INTEGER,
-    minZoom INTEGER,
+    minZoom DOUBLE,
     wikiDataId TEXT,
     FOREIGN KEY (layerId) REFERENCES tbl_layers( layerId )
 );

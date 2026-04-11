@@ -8,6 +8,9 @@ readScript=importBaseLayerShapefiles.spatialite
 identifyBorders=selfLayers
 identifyBorders=Political/Countries|Oceans and seas/Oceans and seas
 identifyBorders=Political/Admin level 1 (States, Provinces )|Oceans and seas/Oceans and seas
+identifyBorders=Political/Countries|Oceans and seas/Major Oceans
+identifyBorders=Political/Admin level 1 (States, Provinces )|Oceans and seas/Major Oceans 
+
 
 //Set the colour index for the two countrey and state layers 
 setPolygonColours=Political/Geography Regions

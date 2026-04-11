@@ -1,0 +1,5 @@
+--Load Shapefiles for natural earth oceans and seas which is quite low res 
+.loadshp  shpPhysical/ne_10m_geography_marine_polys  spt_marinePolys10  UTF-8 4326 MULTIPOLYGON
+
+--Load Shapefiles for major oceans from IHO data which is high res 
+.loadshp  GOaS_v1_20211214/goas_v01 spt_majorOceanPolys  UTF-8 4326 MULTIPOLYGON
