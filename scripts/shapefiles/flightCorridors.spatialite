@@ -1,0 +1,74 @@
+--flight corridors
+--in sqlite3 
+.mode csv
+.import flightCorridors.csv tbl_flightCorridors
+
+--create layer group aviation
+INSERT INTO tbl_layerGroups ( layerGroupName, selected, isBase ) 
+  VALUES ( 'aviation', 1, 0 );
+
+
+--adapt table before importing into generic polygon or point table
+--Nothing to do 
+
+--Add layer flightCorridors  - aviation layer group, selected, is displayable and is made of polygons 
+INSERT INTO tbl_layers  (layerGroupId, layerName, geomCategoryId, selected, display )
+  SELECT 
+    ( SELECT layerGroupId FROM tbl_layerGroups WHERE layerGroupName = 'aviation' ),
+    'flightCorridors', 
+    ( SELECT categoryId FROM ref_geometryCategories WHERE categoryName = 'polygon' ),
+    1, 1;
+
+//insert into polygons table
+INSERT INTO spt_polygons 
+  (
+    layerId,
+    featureClass,
+    name,
+    area,
+    mapColour,
+    minZoomLevel,
+    minX, minY, maxX, maxY,
+    labelX, labelY,
+    polygon
+  )
+  SELECT 
+    ( SELECT layerId FROM tbl_layers WHERE layerName  = 'flightCorridors' ),
+    'Flight Corridor Grid',       -- Feature Class 
+    f.id,                         -- unique id for the 0.1 degree square 
+    -- Calculate area by passing the BuildMbr function directly into ST_Area
+    ST_Area(
+        BuildMbr(
+            f.longitude - 0.05, 
+            f.latitude - 0.05, 
+            f.longitude + 0.05, 
+            f.latitude + 0.05, 
+            4326
+        ), 1
+    ) / 1000000.0,
+    CAST(
+        (f.density * 255.0) / NULLIF((SELECT MAX(density) FROM tbl_flightCorridors), 0) 
+        AS INTEGER
+    ),
+    2, --minZoomLevel 
+    f.longitude - 0.05,           -- minX
+    f.latitude - 0.05,            -- minY
+    f.longitude + 0.05,           -- maxX
+    f.latitude + 0.05,            -- maxY
+    f.longitude,                  -- labelX
+    f.latitude,                   -- labelY
+
+    -- Construct a perfect 0.1 x 0.1 degree square geometry.
+    CastToMultiPolygon(
+        BuildMbr(
+            f.longitude - 0.05, 
+            f.latitude - 0.05, 
+            f.longitude + 0.05, 
+            f.latitude + 0.05, 
+            4326
+        )
+    ) AS s 
+  FROM tbl_flightCorridors f;
+
+--No longer need the imported table
+-- SELECT DropTable( 'main', 'tbl_flightCorridors' );

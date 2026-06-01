@@ -1,0 +1,5 @@
+//adds flight corridor squares to nodes table 
+database=land.db
+
+//load data from flightCorridors.csv 
+readScript=importFlightCorridorsCSV

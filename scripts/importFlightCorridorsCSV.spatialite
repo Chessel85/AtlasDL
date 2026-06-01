@@ -1,0 +1,3 @@
+--import following CSV files 
+.read shapefiles/flightCorridors.spatialite
+
